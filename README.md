@@ -1,12 +1,12 @@
 # ExcelKit
 
 Excel导入导出套件，支持百万级(几百万亦可)数据导出和读取（由于Excel原因，此处仅限xlsx）而不占用多少内存，方便易用的方法让导入导出更易使用
-支持.Net Core，docker，win下皆可使用，包采用的是.Net Standard2.1
+支持.Net Core，docker，win下皆可使用，包采用.Net Standard2.1制作
 
 
 使用方式：Nuget安装：`Install-Package ExcelKit`
 
-**重要提示：如果另外安装了NPOI，请使用NPOI2.4.1版本；已增加Web项目使用示例，可直接运行；导出使用同步方法，不需要异步
+*重要提示：如果另外安装了NPOI，请使用NPOI2.4.1版本；已增加Web项目使用示例，可搜索ExcelKit.Sample查看示例项目；导出使用同步方法，不需要异步*
 
 
 
