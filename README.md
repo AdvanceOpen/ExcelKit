@@ -18,31 +18,31 @@ Excel导入导出套件，支持百万级(几百万亦可)数据导出和读取�
 
 * Desc：字段描述[必指定]，对应Excel列头中的文本，如 姓名、地址，
 
-AllowNull：字段是否允许为空，一般用于读取
+* AllowNull：字段是否允许为空，一般用于读取
 
-Converter：转换器[导出时]，组件中提供了常用的转换器，如需自定义，则继承自IExportConverter<T>并实现方法
+* Converter：转换器[导出时]，组件中提供了常用的转换器，如需自定义，则继承自IExportConverter<T>并实现方法
 
-ConverterParam：转换器辅助参数[导出时]，导出时使用，如日期格式化导出，导出保留的小数位等；如需自定义Converter，则ConverterParam会完全放置到Convert方法的第二个参数中
+* ConverterParam：转换器辅助参数[导出时]，导出时使用，如日期格式化导出，导出保留的小数位等；如需自定义Converter，则ConverterParam会完全放置到Convert方法的第二个参数中
 
-Sort：字段顺序[导出时]，导出和读取都可能用到
+* Sort：字段顺序[导出时]，导出和读取都可能用到
 
-Width：列宽[导出时]，指定Excel列宽度
+* Width：列宽[导出时]，指定Excel列宽度
 
-Align：对齐方式[导出时]，指定Excel列中的文本对齐方式
+* Align：对齐方式[导出时]，指定Excel列中的文本对齐方式
 
-FontColor：字体颜色[导出时]，指定Excel列中的字体颜色，枚举项
+* FontColor：字体颜色[导出时]，指定Excel列中的字体颜色，枚举项
 
-ForegroundColor：前景色[导出时]，指定Excel列的填充色，枚举项
+* ForegroundColor：前景色[导出时]，指定Excel列的填充色，枚举项
 
-HeadRowFrozen：是否启用表头行冻结[导出时]
+* HeadRowFrozen：是否启用表头行冻结[导出时]
 
-HeadRowFilter：是否启用表头行筛选[导出时]
+* HeadRowFilter：是否启用表头行筛选[导出时]
 
-IsIgnore：是否完全忽略
+* IsIgnore：是否完全忽略
 
-IsOnlyIgnoreRead：是否仅读取时忽略
+* IsOnlyIgnoreRead：是否仅读取时忽略
 
-IsOnlyIgnoreWrite：是否仅导出时忽略
+* IsOnlyIgnoreWrite：是否仅导出时忽略
 
 
 -----
