@@ -1,0 +1,10 @@
+﻿################################################################################
+# 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
+################################################################################
+
+/src/.vs/ExcelKit/v16
+/src/.vs/ExcelKit/DesignTimeBuild
+/src/ExcelKit.Console/bin/Debug/netcoreapp3.1
+/src/ExcelKit.Console/obj
+/src/ExcelKit.Core/bin/Debug
+/src/ExcelKit.Core/obj

@@ -1,0 +1,60 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Authors>xxdqr</Authors>
+    <Description>Excel百万级(几百万亦可)数据导出与读取（仅针对xlsx文件）
+excel million level data export and read (only for xlsx files)
+
+1.极低的内存占用，方便易用的方法，让Excel导出和读取更简单
+2.支持.Net Core，Docker，Win下皆可使用
+3.单文件多Sheet导出，多Sheet可导出几百万数据
+5.导出数据超过单Sheet最大量时，多余数据会自动拆分新的Sheet，新Sheet继续沿用之前的样式
+6.可定义类读取和导出，亦可使用字典动态读取和导出
+7.字段可为基础类型，枚举，对象（对象需自己实现Converter）等
+8.可指定列的填充色，字体颜色，列宽，列顺序，筛选，表头冻结等
+9.更多功能与使用方式，请点击下方链接查看示例ExcelKit.Sample
+
+changes
+
+1.优化Converter定义，使用更自由；调整内置BoolConverter，使用更方便
+2.增加方便易用的LiteDataHelper类，适合数据量不大的时候使用
+3.IsIgore全部忽略，增加IsOnlyIgnoreRead  IsOnlyIgnoreWrite
+4.优化调整；去掉LiteDataHelper导出文件名多了后缀的问题
+5.解决EnumConverter存在的Bug；优化Converter内部调用；增加注释
+
+</Description>
+    <PackageReleaseNotes>Excel百万级数据导出&amp;读取（仅针对xlsx文件）</PackageReleaseNotes>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>ExcelKit</PackageId>
+    <Product>ExcelKit</Product>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Version>1.0.16</Version>
+    <PackageProjectUrl>https://github.com/AdvanceOpen/ExcelKit.Sample.git</PackageProjectUrl>
+    <PackageIcon>excelkit_logo.png</PackageIcon>
+    <PackageIconUrl />
+    <PackageTags>excel, xlsx, office, bigdata, import, export</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\ExcelKit.Core.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\ExcelKit.Core.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--<PackageReference Include="DocumentFormat.OpenXml" Version="2.10.1" PrivateAssets="all" />-->
+    <PackageReference Include="DocumentFormat.OpenXml" Version="2.10.1" />
+    <PackageReference Include="NPOI" Version="[2.4.1]" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="excelkit_logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
