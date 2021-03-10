@@ -49,5 +49,11 @@ namespace ExcelKit.Core.ExcelRead
 		/// 行数据处理函数
 		/// </summary>
 		public Action<IList<string>> RowData { get; set; }
+
+		/// <summary>
+		/// 当直接传入Stream时，是否释放流(如果是指定的FilePath，则此选项不生效)
+		/// 比如读取表头后，再根据表头读取具体内容，此时可指定为false不释放
+		/// </summary>
+		public bool IsDisposeStream { get; set; } = true;
 	}
 }

@@ -22,6 +22,8 @@ changes
 3.IsIgore全部忽略，增加IsOnlyIgnoreRead  IsOnlyIgnoreWrite
 4.优化调整；去掉LiteDataHelper导出文件名多了后缀的问题
 5.解决EnumConverter存在的Bug；优化Converter内部调用；增加注释
+6.LiteDataHelper增加安全的Sheet名称获取和检测
+7.LiteDataHelper中增加读取单行数据
 
 </Description>
     <PackageReleaseNotes>Excel百万级数据导出&amp;读取（仅针对xlsx文件）</PackageReleaseNotes>
@@ -29,7 +31,7 @@ changes
     <PackageId>ExcelKit</PackageId>
     <Product>ExcelKit</Product>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>1.0.16</Version>
+    <Version>1.0.17</Version>
     <PackageProjectUrl>https://github.com/AdvanceOpen/ExcelKit.Sample.git</PackageProjectUrl>
     <PackageIcon>excelkit_logo.png</PackageIcon>
     <PackageIconUrl />
