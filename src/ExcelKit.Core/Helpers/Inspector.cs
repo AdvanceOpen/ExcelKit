@@ -9,7 +9,7 @@ namespace ExcelKit.Core.Helpers
 	/// <summary>
 	/// 校验辅助类
 	/// </summary>
-	public class Inspector
+	internal class Inspector
 	{
 		/// <summary>
 		/// 值不为NULL
