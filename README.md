@@ -83,7 +83,10 @@ Converter为内置的接口IExportConverter，主要是为了导出使用；目�
 var excelInfo = LiteDataHelper.ExportToWebDown(users,fileName: $"用户数据-{DateTime.Now.ToString("yyyyMMddHHmm")}");
 //保存物理文件，默认位置为程序运行目录；可自定义Sheet名称，默认Sheet1
 var excelInfo = LiteDataHelper.ExportToDisk(users,fileName: $"用户数据-{DateTime.Now.ToString("yyyyMMddHHmm")}");
-
+//获取安全的Sheet名称
+var sheetName = GetSafeSheetName(string sheetName);
+//是否是安全的Sheet名称
+var isSafeSheetName = IsSafeSheetName(string sheetName)
 
 /// <summary>
 /// 非大批量数据便捷导出（Web）
