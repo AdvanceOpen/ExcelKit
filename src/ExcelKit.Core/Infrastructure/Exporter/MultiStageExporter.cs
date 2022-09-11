@@ -25,6 +25,16 @@ namespace ExcelKit.Core.Infrastructure
     internal class MultiStageExporter
     {
         /// <summary>
+        /// 内部创建Sheet时，Sheet名称包含的字符
+        /// </summary>
+        const string INNER_SHEET_CHAR = "@%&";
+
+        /// <summary>
+        /// 单Sheet最大的数据行数
+        /// </summary>
+        const uint _sheetMaxRowCount = 1048200;
+
+        /// <summary>
         /// Sheet信号量
         /// </summary>
         static readonly Dictionary<string, SemaphoreSlim> _semaphores = new Dictionary<string, SemaphoreSlim>()
@@ -41,13 +51,6 @@ namespace ExcelKit.Core.Infrastructure
         /// 转换器接口默认名称
         /// </summary>
         static string ConverterInterfaceName = typeof(Converter.IExportConverter<>).Name.Split("`")[0];
-
-        /// <summary>
-        /// 内部创建Sheet时，Sheet名称包含的字符
-        /// </summary>
-        const string INNER_SHEET_CHAR = "@%&";
-
-        const uint _sheetMaxRowCount = 1048200;
 
         /// <summary>
         /// 去除SheetName中无效字符
@@ -441,7 +444,7 @@ namespace ExcelKit.Core.Infrastructure
             finally
             {
                 _workbooks.Remove(fileId, out ExcelContextInfo excelInfo);
-                excelInfo.Workbook.Dispose();
+                excelInfo.Workbook.Close();
             }
         }
 
@@ -474,7 +477,7 @@ namespace ExcelKit.Core.Infrastructure
             finally
             {
                 _workbooks.Remove(fileId, out ExcelContextInfo excelInfo);
-                excelInfo.Workbook.Dispose();
+                excelInfo.Workbook.Close();
             }
         }
 
@@ -485,7 +488,7 @@ namespace ExcelKit.Core.Infrastructure
         public static void Dispose(string fileId)
         {
             _workbooks.TryRemove(fileId, out ExcelContextInfo excelInfo);
-            excelInfo?.Workbook?.Dispose();
+            excelInfo?.Workbook?.Close();
         }
     }
 }
