@@ -8,3 +8,5 @@
 /src/ExcelKit.Console/obj
 /src/ExcelKit.Core/bin/Debug
 /src/ExcelKit.Core/obj
+/src/.vs
+/src/ExcelKit.Console/bin/Debug/net6.0

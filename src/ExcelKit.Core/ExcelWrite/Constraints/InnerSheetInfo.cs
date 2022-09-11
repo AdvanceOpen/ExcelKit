@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using ExcelKit.Core.Attributes;
 using NPOI.SS.UserModel;
 
@@ -30,5 +31,23 @@ namespace ExcelKit.Core.ExcelWrite
 		/// 该Sheet类型下对应sheet的索引，新增一个该类型的sheet在上一条记录上的SheetIndex加1作为本条记录的值
 		/// </summary>
 		public int SheetIndex { get; set; }
-	}
+
+        /// <summary>
+        /// 当前Sheet内数据行数
+        /// </summary>
+        public int DataRowCount { get; set; }
+
+        /// <summary>
+        /// 当前Sheet内数据行数
+        /// </summary>
+        private int _dataRowCounter = 0;
+
+        /// <summary>
+        /// 递增追加的数据行
+        /// </summary>
+        internal void IncrementDataRowCount()
+        {
+            DataRowCount = Interlocked.Increment(ref _dataRowCounter);
+        }
+    }
 }

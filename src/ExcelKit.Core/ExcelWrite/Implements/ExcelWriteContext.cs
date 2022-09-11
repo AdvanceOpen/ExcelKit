@@ -26,7 +26,7 @@ namespace ExcelKit.Core.ExcelWrite
 
 		public string SafeSheetName(string sheetName)
 		{
-			return MultiStageExporter.SafeSheetName(sheetName);
+			return MultiStageExporter.GetSafeSheetName(sheetName);
 		}
 
 		public ISheetWriteContext CrateSheet<T>(string sheetName, uint autoSplit = 1048200) where T : class, new()
