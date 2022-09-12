@@ -13,7 +13,8 @@ excel million level data export and read (only for xlsx files)
 6.可定义类读取和导出，亦可使用字典动态读取和导出
 7.字段可为基础类型，枚举，对象（对象需自己实现Converter）等
 8.可指定列的填充色，字体颜色，列宽，列顺序，筛选，表头冻结等
-9.更多功能与使用方式，请点击下方链接查看示例ExcelKit.Sample
+9.项目开源地址为：https://github.com/AdvanceOpen/ExcelKit.git
+10.更多功能与使用方式，请点击下方链接查看示例ExcelKit.Sample
 
 changes
 
@@ -24,6 +25,7 @@ changes
 5.解决EnumConverter存在的Bug；优化Converter内部调用；增加注释
 6.LiteDataHelper增加安全的Sheet名称获取和检测
 7.LiteDataHelper中增加读取单行数据
+8.调整追加的数据行数为内部实现，不再采用组件的PhysicalNumberOfRows
 
 </Description>
     <PackageReleaseNotes>Excel百万级数据导出&amp;读取（仅针对xlsx文件）</PackageReleaseNotes>
@@ -31,7 +33,7 @@ changes
     <PackageId>ExcelKit</PackageId>
     <Product>ExcelKit</Product>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>1.0.18</Version>
+    <Version>1.0.19</Version>
     <PackageProjectUrl>https://github.com/AdvanceOpen/ExcelKit.Sample.git</PackageProjectUrl>
     <PackageIcon>excelkit_logo.png</PackageIcon>
     <PackageIconUrl />
