@@ -16,6 +16,7 @@ using ExcelKit.Core.Constraint.Mappings;
 using System.Threading;
 using ExcelKit.Core.Constraint.Consts;
 using ExcelKit.Core.Infrastructure.Exceptions;
+using CellType = NPOI.SS.UserModel.CellType;
 
 namespace ExcelKit.Core.Infrastructure
 {
@@ -24,16 +25,6 @@ namespace ExcelKit.Core.Infrastructure
     /// </summary>
     internal class MultiStageExporter
     {
-        /// <summary>
-        /// 内部创建Sheet时，Sheet名称包含的字符
-        /// </summary>
-        const string INNER_SHEET_CHAR = "@%&";
-
-        /// <summary>
-        /// 单Sheet最大的数据行数
-        /// </summary>
-        const uint _sheetMaxRowCount = 1048200;
-
         /// <summary>
         /// Sheet信号量
         /// </summary>
@@ -149,15 +140,29 @@ namespace ExcelKit.Core.Infrastructure
                 headers = headers.OrderBy(t => t.Sort).ToList();
 
                 //1.首次出现的Sheet记录下来（后面自动拆分Sheet要引用最初Sheet的信息）
-                if (!_workbooks[fileId].SheetInfo.Exists(t => t.OriginSheetName == sheetName) && !sheetName.Contains(INNER_SHEET_CHAR))
+                if (!_workbooks[fileId].SheetInfo.Exists(t => t.OriginSheetName == sheetName) && !sheetName.Contains(MultiStageExporterConst.INNER_SHEET_CHAR))
+                {
                     _workbooks[fileId].SheetInfo.Add(new InnerSheetInfo()
                     {
                         SheetIndex = 0,
                         PropAttr = headers,
                         OriginSheetName = sheetName,
+                        RealSheetName = sheetName,
                     });
+                }
                 else
-                    sheetName = sheetName.Replace(INNER_SHEET_CHAR, "");
+                {
+                    sheetName = sheetName.Replace(MultiStageExporterConst.INNER_SHEET_CHAR, "");
+
+                    _workbooks[fileId].SheetInfo.Add(new InnerSheetInfo()
+                    {
+                        OriginSheetName = _workbooks[fileId].SheetInfo.First().OriginSheetName,
+                        RealSheetName = sheetName,
+                        PropAttr = headers,
+                        SheetIndex = _workbooks[fileId].SheetInfo.Max(t => t.SheetIndex) + 1,
+                        CellStyles = _workbooks[fileId].SheetInfo.First().CellStyles,
+                    });
+                }
 
                 sheetName = GetSafeSheetName(sheetName);
                 Inspector.NotNullOrWhiteSpace(sheetName, "Sheet名称为空或无效");
@@ -209,7 +214,7 @@ namespace ExcelKit.Core.Infrastructure
                             cellStyle.SetFont(font);
 
                             //记录单元格样式
-                            if (_workbooks[fileId].SheetInfo.Exists(t => t.OriginSheetName == sheetName) && !sheetName.Contains(INNER_SHEET_CHAR))
+                            if (_workbooks[fileId].SheetInfo.Exists(t => t.OriginSheetName == sheetName) && !sheetName.Contains(MultiStageExporterConst.INNER_SHEET_CHAR))
                             {
                                 _workbooks[fileId].SheetInfo.FirstOrDefault(t => t.OriginSheetName == sheetName).CellStyles.Add(head.Code, cellStyle);
                             }
@@ -231,28 +236,29 @@ namespace ExcelKit.Core.Infrastructure
         /// <summary>
         /// 自动拆分Sheet
         /// </summary>
-        private static void AutoSplitSheet(ref ISheet sheet, string fileId, string sheetName, uint autoSplit = _sheetMaxRowCount)
+        private static void AutoSplitSheet(ref ISheet sheet, string fileId, string sheetName, uint autoSplit = MultiStageExporterConst.SheetMaxRowCount)
         {
-            //自动拆分Sheet
-            if (sheet.PhysicalNumberOfRows > autoSplit)
+            //获取传入的Sheet信息
+            var lastSheetInfo = _workbooks[fileId].SheetInfo.OrderBy(t => t.SheetIndex).LastOrDefault(t => t.OriginSheetName == sheetName);
+            //自动拆分Sheet时，由于传入的sheet名称是原始的sheet名称，故此处自动判断后定位到拆分后具体的sheet
+            if (_workbooks[fileId].SheetInfo.Where(t => t.OriginSheetName == sheetName).Count() > 1 && lastSheetInfo.RealSheetName != sheetName)
             {
-                var lastSheet = _workbooks[fileId].SheetInfo.LastOrDefault(t => t.OriginSheetName == sheetName);
+                sheet = GetSheet(fileId, InnerSheetInfo.BuildRealSheetName(lastSheetInfo.OriginSheetName, lastSheetInfo.SheetIndex));
+            }
 
-                var thisSheet = GetSheet(fileId, $"{lastSheet.OriginSheetName}_{lastSheet.SheetIndex}");
-                if (thisSheet != null && lastSheet.DataRowCount <= autoSplit)
+            //自动拆分Sheet
+            if (lastSheetInfo.DataRowCount > autoSplit)
+            {
+                var lastSheet = GetSheet(fileId, InnerSheetInfo.BuildRealSheetName(lastSheetInfo.OriginSheetName, lastSheetInfo.SheetIndex));
+
+                if (lastSheet != null && lastSheetInfo.DataRowCount <= autoSplit)
                 {
-                    sheet = thisSheet;
+                    sheet = lastSheet;
                 }
                 else
                 {
-                    sheet = CreteSheet(fileId, $"{lastSheet.OriginSheetName}_{++lastSheet.SheetIndex}{INNER_SHEET_CHAR}", lastSheet.PropAttr);
-                    _workbooks[fileId].SheetInfo.Add(new InnerSheetInfo()
-                    {
-                        OriginSheetName = lastSheet.OriginSheetName,
-                        PropAttr = lastSheet.PropAttr,
-                        SheetIndex = lastSheet.SheetIndex,
-                        CellStyles = lastSheet.CellStyles
-                    });
+                    var innerSheetName = InnerSheetInfo.BuildInnerSheetName(lastSheetInfo.OriginSheetName, lastSheetInfo.SheetIndex + 1);
+                    sheet = CreteSheet(fileId, innerSheetName, lastSheetInfo.PropAttr);
                 }
             }
         }
@@ -265,20 +271,28 @@ namespace ExcelKit.Core.Infrastructure
         /// <param name="data">数据</param>
         /// <param name="autoSplit">多少条数据拆分Sheet</param>
         /// <remarks>单Sheet默认最大1048575行，但直接使用这个会溢出，使用1048200不会</remarks>
-        public static void AppendData<T>(string fileId, string sheetName, T data, uint autoSplit = _sheetMaxRowCount) where T : class, new()
+        public static void AppendData<T>(string fileId, string sheetName, T data, uint autoSplit = MultiStageExporterConst.SheetMaxRowCount) where T : class, new()
         {
             Inspector.NotNull(data, "待导出的数据集不能为空");
             Inspector.Validation(!_workbooks.ContainsKey(fileId), $"导出文件标识不存在，请调用{nameof(CreateExcel)}创建");
 
             var sheet = GetSheet(fileId, sheetName) ?? throw new ExcelKitException($"导出文件中不存在名为 {sheetName} 的Sheet，请调用{nameof(CreteSheet)}创建");
+            var originSheetName = sheetName;
 
             //自动拆分Sheet
-            autoSplit = autoSplit > _sheetMaxRowCount ? _sheetMaxRowCount : autoSplit;
+            autoSplit = autoSplit > MultiStageExporterConst.SheetMaxRowCount ? MultiStageExporterConst.SheetMaxRowCount : autoSplit;
             AutoSplitSheet(ref sheet, fileId, sheetName, autoSplit);
+
+            //当前Sheet信息(注意此处要用真实Sheet名称获取Sheet信息 ，ref sheet中已返回实际正在操作的Sheet)
+            var curSheetInfo = _workbooks[fileId].SheetInfo
+                .Where(t => t.OriginSheetName == sheetName)
+                .OrderBy(t => t.SheetIndex)
+                .LastOrDefault(t => t.RealSheetName == sheet.SheetName);
 
             //写入数据
             var cellCount = 0;
-            var dataRow = sheet.CreateRow(sheet.PhysicalNumberOfRows);
+            curSheetInfo.IncrementDataRowCount();
+            var dataRow = sheet.CreateRow(curSheetInfo.DataRowCount - 1);
             var sortedProps = ReflectionHelper.NewInstance.GetSortedExportProps<T>();
             foreach (var item in sortedProps)
             {
@@ -319,7 +333,7 @@ namespace ExcelKit.Core.Infrastructure
                 value = value is DateTime ? ((DateTime)value).ToString("yyyy-MM-dd HH:mm:ss") : value;
                 var cell = dataRow.CreateCell(cellCount++);
                 {
-                    var thisSheet = _workbooks[fileId].SheetInfo.FirstOrDefault(t => t.OriginSheetName == sheetName);
+                    var thisSheet = _workbooks[fileId].SheetInfo.FirstOrDefault(t => t.OriginSheetName == originSheetName);
                     cell.CellStyle = thisSheet.CellStyles[item.attr.Code];//为单元格设置显示样式  
                 }
                 if (value is byte || value is int || value is long || value is short || value is float || value is double || value is decimal)
@@ -342,20 +356,28 @@ namespace ExcelKit.Core.Infrastructure
         /// <param name="rowData">单行数据</param>
         /// <param name="autoSplit">多少条数据拆分Sheet</param>
         /// <remarks>单Sheet默认最大1048575行，但直接使用这个会溢出，使用1048200不会</remarks>
-        public static void AppendData(string fileId, string sheetName, Dictionary<string, object> rowData, uint autoSplit = _sheetMaxRowCount)
+        public static void AppendData(string fileId, string sheetName, Dictionary<string, object> rowData, uint autoSplit = MultiStageExporterConst.SheetMaxRowCount)
         {
             Inspector.NotNull(rowData, "待导出的数据集不能为空");
             Inspector.Validation(!_workbooks.ContainsKey(fileId), $"导出文件标识不存在，请调用{nameof(CreateExcel)}创建");
 
             var sheet = GetSheet(fileId, sheetName) ?? throw new ExcelKitException($"导出文件中不存在名为 {sheetName} 的Sheet，请调用{nameof(CreteSheet)}创建");
+            var originSheetName = sheetName;
 
             //自动拆分Sheet
-            autoSplit = autoSplit > _sheetMaxRowCount ? _sheetMaxRowCount : autoSplit;
+            autoSplit = autoSplit > MultiStageExporterConst.SheetMaxRowCount ? MultiStageExporterConst.SheetMaxRowCount : autoSplit;
             AutoSplitSheet(ref sheet, fileId, sheetName, autoSplit);
+
+            //当前Sheet信息(注意此处要用真实Sheet名称获取Sheet信息 ，ref sheet中已返回实际正在操作的Sheet)
+            var curSheetInfo = _workbooks[fileId].SheetInfo
+                .Where(t => t.OriginSheetName == sheetName)
+                .OrderBy(t => t.SheetIndex)
+                .LastOrDefault(t => t.RealSheetName == sheet.SheetName);
 
             //写入数据
             var cellCount = 0;
-            var dataRow = sheet.CreateRow(sheet.PhysicalNumberOfRows);
+            curSheetInfo.IncrementDataRowCount();
+            var dataRow = sheet.CreateRow(curSheetInfo.DataRowCount - 1);
             var headers = _workbooks[fileId].SheetInfo.FirstOrDefault(t => t.OriginSheetName == sheetName).PropAttr;
 
             var index = 0;
@@ -400,7 +422,7 @@ namespace ExcelKit.Core.Infrastructure
                 value = value is DateTime ? ((DateTime)value).ToString("yyyy-MM-dd HH:mm:ss") : value;
                 var cell = dataRow.CreateCell(cellCount++);
                 {
-                    var thisSheet = _workbooks[fileId].SheetInfo.FirstOrDefault(t => t.OriginSheetName == sheetName);
+                    var thisSheet = _workbooks[fileId].SheetInfo.FirstOrDefault(t => t.OriginSheetName == originSheetName);
                     cell.CellStyle = thisSheet.CellStyles[attributeElement.Code];//为单元格设置显示样式  
                 }
                 if (value is byte || value is int || value is long || value is short || value is float || value is double || value is decimal)

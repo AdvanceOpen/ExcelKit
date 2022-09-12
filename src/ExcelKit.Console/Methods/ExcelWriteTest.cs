@@ -17,7 +17,7 @@ namespace ExcelKit.Consoles.Methods
 			using (var context = ContextFactory.GetWriteContext("测试导出文件"))
 			{
 				var sheet = context.CrateSheet<UserDto>($"Sheet1");
-				for (int index = 0; index < 100; index++)
+				for (int index = 1; index <= 1048201; index++)
 				{
 					bool? sex = null;
 					if (index != 0)
