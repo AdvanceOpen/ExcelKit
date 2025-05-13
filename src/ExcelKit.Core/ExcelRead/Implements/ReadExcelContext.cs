@@ -182,7 +182,6 @@ namespace ExcelKit.Core.ExcelRead
                         }
                     }
                 }
-                sheetDoc.Close();
             }
             if (option.IsDisposeStream)
                 stream.Dispose();
@@ -356,7 +355,6 @@ namespace ExcelKit.Core.ExcelRead
                         }
                     }
                 }
-                sheetDoc.Close();
             }
         }
 
@@ -520,7 +518,6 @@ namespace ExcelKit.Core.ExcelRead
                         }
                     }
                 }
-                sheetDoc.Close();
             }
         }
     }

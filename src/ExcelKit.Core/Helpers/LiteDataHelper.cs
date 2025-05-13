@@ -101,7 +101,7 @@ namespace ExcelKit.Core.Helpers
             var sucDatas = new List<T>();
             var failDatas = new List<(Dictionary<string, object> odata, List<(string rowIndex, string columnName, string cellValue, string errorMsg)> failInfo)>();
 
-            ContextFactory.GetReadContext().ReadSheet("测试导出文件.xlsx", new ReadSheetOptions<T>()
+            ContextFactory.GetReadContext().ReadSheet(filePath, new ReadSheetOptions<T>()
             {
                 SucData = (rowdata, rowindex) =>
                 {
