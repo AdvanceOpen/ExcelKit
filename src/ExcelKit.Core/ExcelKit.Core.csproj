@@ -28,6 +28,8 @@ changes
 8.调整追加的数据行数为内部实现，不再采用组件的PhysicalNumberOfRows
 9.更新组件包版本；导出时自动判断文件名是否包含.xlsx
 10.解决LiteDataHelper读取时报错的问题
+11.增加读取某个Sheet总行数
+12.读取选项中增加IsDisposeStream
 
 </Description>
     <PackageReleaseNotes>Excel百万级数据导出&amp;读取（仅针对xlsx文件）</PackageReleaseNotes>

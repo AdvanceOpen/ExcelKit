@@ -24,7 +24,7 @@ namespace ExcelKit.Core.ExcelWrite
 			_fileId = MultiStageExporter.CreateExcel(fileName);
 		}
 
-		public string SafeSheetName(string sheetName)
+		public string GetSafeSheetName(string sheetName)
 		{
 			return MultiStageExporter.GetSafeSheetName(sheetName);
 		}

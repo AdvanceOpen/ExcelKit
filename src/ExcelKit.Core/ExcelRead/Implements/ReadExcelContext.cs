@@ -183,8 +183,7 @@ namespace ExcelKit.Core.ExcelRead
                     }
                 }
             }
-            if (option.IsDisposeStream)
-                stream.Dispose();
+            if (option.IsDisposeStream) stream.Dispose();
         }
 
         public void ReadSheet(string filePath, ReadSheetDicOptions option)
@@ -356,6 +355,7 @@ namespace ExcelKit.Core.ExcelRead
                     }
                 }
             }
+            if (option.IsDisposeStream) stream.Dispose();
         }
 
         public void ReadSheet<T>(string filePath, ReadSheetOptions<T> option) where T : class, new()
@@ -519,6 +519,98 @@ namespace ExcelKit.Core.ExcelRead
                     }
                 }
             }
+            if (option.IsDisposeStream) stream.Dispose();
+        }
+
+        public int ReadSheetRowsCount(string filePath, ReadSheetRowsCountOptions option)
+        {
+            this.CheckExcelInfo(filePath);
+            using (var stream = File.OpenRead(filePath))
+            {
+                return this.ReadSheetRowsCount(stream, option);
+            }
+        }
+
+        public int ReadSheetRowsCount(Stream stream, ReadSheetRowsCountOptions option)
+        {
+            Inspector.NotNull(stream, "Excel文件流不能为空");
+            Inspector.NotNull(option, $"{nameof(ReadSheetRowsCountOptions)} can not be null");
+
+            //匹配SheetName
+            var sheetName = "";
+            {
+                var sheetNames = this.GetSheetNames(stream, false);
+                Inspector.Validation(option.ReadWay == ReadWay.SheetIndex && option.SheetIndex > sheetNames.Count(), $"指定的SheetIndex {option.SheetIndex} 无效，实际只存在{sheetNames.Count()}个Sheet");
+                Inspector.Validation(option.ReadWay == ReadWay.SheetName && !sheetNames.Contains(option.SheetName), $"指定的SheetName {option.SheetName} 不存在");
+                sheetName = option.ReadWay switch { ReadWay.SheetIndex => sheetNames.ElementAt(option.SheetIndex - 1), ReadWay.SheetName => option.SheetName };
+            }
+
+            int rowsCount = 0;
+
+            using (var sheetDoc = SpreadsheetDocument.Open(stream, false))
+            {
+                WorkbookPart workbookPart = sheetDoc.WorkbookPart;
+                //1.目标Sheet的Rid是否存在
+                string rId = workbookPart.Workbook.Sheets?.Cast<Sheet>()?.FirstOrDefault(t => t.Name.Value == sheetName)?.Id?.Value;
+                Inspector.NotNullOrWhiteSpace(rId, $"不存在名为：{sheetName} 的Sheet");
+
+                SharedStringTablePart shareStringPart;
+                if (workbookPart.GetPartsOfType<SharedStringTablePart>().Count() > 0)
+                    shareStringPart = workbookPart.GetPartsOfType<SharedStringTablePart>().First();
+                else
+                    shareStringPart = workbookPart.AddNewPart<SharedStringTablePart>();
+
+                string[] shareStringItemValues = shareStringPart.GetItemValues().ToArray();
+
+                //2.反转Sheet顺序
+                foreach (var workSheetPart in workbookPart.WorksheetParts?.Reverse())
+                {
+                    //是否是指定Sheet的Rid
+                    string partRelationshipId = workbookPart.GetIdOfPart(workSheetPart);
+                    if (partRelationshipId != rId) continue;
+
+                    //创建Reader
+                    OpenXmlReader reader = OpenXmlReader.Create(workSheetPart);
+
+                    while (reader.Read())
+                    {
+                        if (reader.ElementType == typeof(Worksheet))
+                        {
+                            reader.ReadFirstChild();
+                        }
+
+                        if (reader.ElementType == typeof(Row))
+                        {
+                            var row = (Row)reader.LoadCurrentElement();
+                            if (option.ContainsEmptyRow)
+                            {
+                                rowsCount++;
+                                continue;
+                            }
+
+                            var hasNotEmptyCell = false;
+                            //4. row.Elements<Cell>()获取出来的会自动跳过为空的单元格
+                            foreach (Cell cell in row.Elements<Cell>())
+                            {
+                                //4.1 跳过cell引用为空的
+                                if (cell.CellReference == null || !cell.CellReference.HasValue)
+                                    continue;
+
+                                //Excel中读取到的值
+                                string value = cell.GetValue(shareStringItemValues);
+                                if (!string.IsNullOrWhiteSpace(value))
+                                {
+                                    hasNotEmptyCell = true;
+                                    break;
+                                }
+                            }
+                            if (hasNotEmptyCell) rowsCount++;
+                        }
+                    }
+                }
+            }
+            if (option.IsDisposeStream) stream.Dispose();
+            return rowsCount;
         }
     }
 }

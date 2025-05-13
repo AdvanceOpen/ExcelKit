@@ -16,7 +16,7 @@ namespace ExcelKit.Core.ExcelWrite
 		/// </summary>
 		/// <param name="sheetName"></param>
 		/// <returns></returns>
-		string SafeSheetName(string sheetName);
+		string GetSafeSheetName(string sheetName);
 
 		/// <summary>
 		/// 创建Sheet
