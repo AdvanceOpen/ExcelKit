@@ -37,7 +37,7 @@ changes
     <PackageId>ExcelKit</PackageId>
     <Product>ExcelKit</Product>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>1.0.20</Version>
+    <Version>1.0.21</Version>
     <PackageProjectUrl>https://github.com/AdvanceOpen/ExcelKit.Sample.git</PackageProjectUrl>
     <PackageIcon>excelkit_logo.png</PackageIcon>
     <PackageIconUrl />
