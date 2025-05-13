@@ -26,6 +26,8 @@ changes
 6.LiteDataHelper增加安全的Sheet名称获取和检测
 7.LiteDataHelper中增加读取单行数据
 8.调整追加的数据行数为内部实现，不再采用组件的PhysicalNumberOfRows
+9.更新组件包版本；导出时自动判断文件名是否包含.xlsx
+10.解决LiteDataHelper读取时报错的问题
 
 </Description>
     <PackageReleaseNotes>Excel百万级数据导出&amp;读取（仅针对xlsx文件）</PackageReleaseNotes>
@@ -33,7 +35,7 @@ changes
     <PackageId>ExcelKit</PackageId>
     <Product>ExcelKit</Product>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>1.0.19</Version>
+    <Version>1.0.20</Version>
     <PackageProjectUrl>https://github.com/AdvanceOpen/ExcelKit.Sample.git</PackageProjectUrl>
     <PackageIcon>excelkit_logo.png</PackageIcon>
     <PackageIconUrl />
