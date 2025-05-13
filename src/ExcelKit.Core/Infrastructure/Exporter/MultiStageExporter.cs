@@ -449,8 +449,8 @@ namespace ExcelKit.Core.Infrastructure
             try
             {
                 var filePath = string.IsNullOrWhiteSpace(saveForder)
-                               ? Path.Combine(AppContext.BaseDirectory, $"{_workbooks[fileId].ExportFileName}.xlsx")
-                               : Path.Combine(saveForder, $"{_workbooks[fileId].ExportFileName}.xlsx");
+                               ? Path.Combine(AppContext.BaseDirectory, $"{_workbooks[fileId].ExportFileName.Replace(".xlsx", "")}.xlsx")
+                               : Path.Combine(saveForder, $"{_workbooks[fileId].ExportFileName.Replace(".xlsx", "")}.xlsx");
 
                 using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite))
                 {
@@ -489,7 +489,7 @@ namespace ExcelKit.Core.Infrastructure
                 return new OutExcelInfo()
                 {
                     Stream = stream,
-                    FileName = $"{_workbooks[fileId].ExportFileName}.xlsx"
+                    FileName = $"{_workbooks[fileId].ExportFileName.Replace(".xlsx", "")}.xlsx"
                 };
             }
             catch (Exception)
